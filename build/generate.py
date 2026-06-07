@@ -471,7 +471,8 @@ def sub_head(lang, title, desc, kw, canonical, hreflang_block, jsonld_str, og_im
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Crect width='56' height='56' rx='9' fill='%2306202f'/%3E%3Cpath d='M39 18 A20 20 0 1 0 39 38' fill='none' stroke='%23fbf8f1' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M14 45h28' stroke='%23c39a4a' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" /></noscript>
   <link rel="stylesheet" href="{BASE}/assets/css/styles.css?v={CSS_VER}" />
   {jsonld_str}
 </head>'''
@@ -638,7 +639,8 @@ def page(lang):
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Crect width='56' height='56' rx='9' fill='%2306202f'/%3E%3Cpath d='M39 18 A20 20 0 1 0 39 38' fill='none' stroke='%23fbf8f1' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M14 45h28' stroke='%23c39a4a' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" /></noscript>
   <link rel="stylesheet" href="{BASE}/assets/css/styles.css?v={CSS_VER}" />
   {jsonld(lang)}
 </head>
