@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bala Beach Rentals — Beachfront Vacation Rental, María Chiquita, Colón, Panama</title>
+  <title>Bala Beach — Beachfront Vacation Rental, María Chiquita, Colón, Panama</title>
   <meta name="description" content="Luxury beachfront vacation rental at Bala Beach, María Chiquita, Colón, Panama. Available in English, Español, Deutsch, Português, Français." />
   <link rel="canonical" href="https://hermes08.github.io/Bala-beach-2/" />
   <link rel="alternate" hreflang="x-default" href="https://hermes08.github.io/Bala-beach-2/" />
@@ -13,50 +13,46 @@
   <link rel="alternate" hreflang="pt" href="https://hermes08.github.io/Bala-beach-2/pt/" />
   <link rel="alternate" hreflang="fr" href="https://hermes08.github.io/Bala-beach-2/fr/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
-    body{font-family:Manrope,sans-serif;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-    background:#0a2a43 url('https://i.ibb.co/0RbW3B6g/Ocean-View.jpg') center/cover;color:#fff;text-align:center}
-    .ov{position:fixed;inset:0;background:linear-gradient(180deg,rgba(10,42,67,.7),rgba(10,42,67,.9))}
+    body{font-family:Manrope,sans-serif;margin:0;min-height:100svh;display:flex;align-items:center;justify-content:center;
+    background:#06202f url('https://i.ibb.co/0RbW3B6g/Ocean-View.jpg') center/cover;color:#fff;text-align:center}
+    .ov{position:fixed;inset:0;background:linear-gradient(180deg,rgba(6,32,47,.6),rgba(6,32,47,.92))}
     .box{position:relative;z-index:1;padding:2rem}
-    .mark{font-size:.8rem;letter-spacing:.3em;color:#f5b942;font-weight:800}
-    h1{font-size:1.6rem;font-weight:800;margin:.6rem 0}
-    p{opacity:.85;margin:0 0 1.4rem}
-    .sp{width:34px;height:34px;border:3px solid rgba(255,255,255,.3);border-top-color:#f5b942;border-radius:50%;
-    margin:1rem auto;animation:spin 1s linear infinite}
+    .mark{font-size:.62rem;letter-spacing:.34em;color:#dcb978;font-weight:700}
+    h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:2rem;margin:.6rem 0;letter-spacing:-.01em}
+    p{opacity:.82;margin:0 0 1.4rem;font-size:.95rem}
+    .sp{width:32px;height:32px;border:2px solid rgba(255,255,255,.25);border-top-color:#dcb978;border-radius:50%;
+    margin:1.2rem auto;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .langs{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1rem}
-    .langs a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.35);padding:.5rem .9rem;
-    border-radius:999px;font-weight:700;font-size:.9rem;transition:.2s}
-    .langs a:hover{background:#f5b942;color:#0a2a43;border-color:#f5b942}
+    .langs a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:.5rem .9rem;
+    border-radius:2px;font-weight:700;font-size:.88rem;transition:.2s}
+    .langs a:hover{background:#c39a4a;color:#06202f;border-color:#c39a4a}
   </style>
   <script>
     (function(){
       var GEO={"es": ["PA", "ES", "MX", "CO", "AR", "PE", "CL", "VE", "EC", "GT", "CR", "DO", "BO", "HN", "PY", "SV", "NI", "CU", "UY"], "de": ["DE", "AT", "CH", "LI"], "pt": ["BR", "PT", "AO", "MZ"], "fr": ["FR", "BE", "CA", "CH", "LU", "MC", "SN", "CI"], "en": ["US", "GB", "CA", "AU", "NZ", "IE", "ZA", "IN", "PH"]}, LANGS=["en", "es", "de", "pt", "fr"], DEF="en", BASE="/Bala-beach-2";
       function go(l){ if(LANGS.indexOf(l)<0) l=DEF; location.replace(BASE+"/"+l+"/"); }
-      // 1) remembered choice
       try{ var s=localStorage.getItem("bb_lang"); if(s){ go(s); return; } }catch(_e){}
-      // 2) browser language (instant)
       var nav=(navigator.language||navigator.userLanguage||DEF).slice(0,2).toLowerCase();
-      var browserHit = LANGS.indexOf(nav)>=0 ? nav : null;
-      // 3) IP geolocation (country -> language), fall back to browser/default
-      var done=false;
-      var to=setTimeout(function(){ if(!done){ done=true; go(browserHit||DEF); } }, 1500);
+      var bh = LANGS.indexOf(nav)>=0 ? nav : null;
+      var done=false, to=setTimeout(function(){ if(!done){done=true;go(bh||DEF);} },1500);
       try{
         fetch("https://ipapi.co/json/").then(function(r){return r.json();}).then(function(d){
-          if(done) return; done=true; clearTimeout(to);
+          if(done)return; done=true; clearTimeout(to);
           var cc=(d&&d.country_code||"").toUpperCase(), pick=null;
-          for(var l in GEO){ if(GEO[l].indexOf(cc)>=0){ pick=l; break; } }
-          go(pick||browserHit||DEF);
-        }).catch(function(){ if(!done){ done=true; clearTimeout(to); go(browserHit||DEF); } });
-      }catch(_e){ if(!done){ done=true; clearTimeout(to); go(browserHit||DEF); } }
+          for(var l in GEO){ if(GEO[l].indexOf(cc)>=0){pick=l;break;} }
+          go(pick||bh||DEF);
+        }).catch(function(){ if(!done){done=true;clearTimeout(to);go(bh||DEF);} });
+      }catch(_e){ if(!done){done=true;clearTimeout(to);go(bh||DEF);} }
     })();
   </script>
 </head>
 <body>
   <div class="ov"></div>
   <div class="box">
-    <div class="mark">BALA BEACH · PANAMÁ</div>
+    <div class="mark">BALA BEACH · MARÍA CHIQUITA · PANAMÁ</div>
     <h1>Beachfront Vacation Rental</h1>
     <p>María Chiquita, Colón — Caribbean Panama</p>
     <div class="sp"></div>
