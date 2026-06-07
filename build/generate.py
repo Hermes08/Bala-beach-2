@@ -19,6 +19,17 @@ else:
     BASE = SITE["base"]
 TODAY = datetime.date.today().isoformat()
 
+import hashlib
+def asset_ver(relpath):
+    """Short content hash for cache-busting (?v=...) so updates bypass immutable cache."""
+    try:
+        with open(os.path.join(ROOT, relpath), "rb") as f:
+            return hashlib.md5(f.read()).hexdigest()[:8]
+    except OSError:
+        return "1"
+CSS_VER = asset_ver("assets/css/styles.css")
+JS_VER = asset_ver("assets/js/main.js")
+
 # ---- icon set (ported from design app.js) ----
 I = {
     "wifi": '<path d="M5 12.5a10 10 0 0 1 14 0M8 15.5a6 6 0 0 1 8 0M11 18.5a1.5 1.5 0 0 1 2 0"/><circle cx="12" cy="19" r=".4" fill="currentColor" stroke="none"/>',
@@ -444,13 +455,13 @@ def page(lang):
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{BASE}/assets/css/styles.css" />
+  <link rel="stylesheet" href="{BASE}/assets/css/styles.css?v={CSS_VER}" />
   {jsonld(lang)}
 </head>
 <body id="top" data-lang="{lang}">
 {body}
 <script>window.GALLERY={gallery_json};window.FILM={json.dumps({"cta":t["film"]["cta"],"on":t["film"]["on"]}, ensure_ascii=False)};</script>
-<script src="{BASE}/assets/js/main.js" defer></script>
+<script src="{BASE}/assets/js/main.js?v={JS_VER}" defer></script>
 </body>
 </html>'''
 
