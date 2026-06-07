@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hermes08.github.io/Bala-beach-2/sitemap.xml
