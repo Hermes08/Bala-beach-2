@@ -8,6 +8,7 @@ import os, json, html, datetime
 from urllib.parse import quote
 from content import (SITE, LANGS, LANG_META, DEFAULT_LANG, GEO_MAP, IMAGES,
                      REVIEWS, C, SEO, FOOTER_KEYWORDS)
+from guides import GUIDES, GUIDE_ORDER, GUIDES_LABEL
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CUSTOM = SITE.get("custom_domain", "").strip()
@@ -29,6 +30,11 @@ def asset_ver(relpath):
         return "1"
 CSS_VER = asset_ver("assets/css/styles.css")
 JS_VER = asset_ver("assets/js/main.js")
+
+def img_src(slug, w=1600):
+    return f"{BASE}/assets/img/{slug}-{w}.webp"
+def img_srcset(slug):
+    return f"{BASE}/assets/img/{slug}-800.webp 800w, {BASE}/assets/img/{slug}-1600.webp 1600w"
 
 # ---- icon set (ported from design app.js) ----
 I = {
@@ -96,7 +102,7 @@ def jsonld(lang):
         {"@context": "https://schema.org", "@type": "VacationRental",
          "name": SITE["property_name"], "headline": t["hero"]["title"], "description": SEO[lang]["desc"],
          "url": lang_url(lang), "inLanguage": lang,
-         "image": [IMAGES["hero"][0][0], IMAGES["hero"][3][0], IMAGES["gallery"][1][0]],
+         "image": [FULL + f"/assets/img/{s}-1600.webp" for s in ["ocean-view", "balcony", "living-room"]],
          "address": {"@type": "PostalAddress", "addressLocality": SITE["locality"],
                      "addressRegion": SITE["region"], "addressCountry": SITE["country"]},
          "geo": {"@type": "GeoCoordinates", "latitude": SITE["lat"], "longitude": SITE["lng"]},
@@ -126,14 +132,19 @@ def hreflang_tags():
     return "\n  ".join(tags)
 
 # ---------------- components ----------------
-def header(lang):
+def header(lang, home=True):
     t = C[lang]; nav = t["nav"]
+    # On the home page anchors are local (#x); on sub-pages they jump back to the home.
+    hp = "" if home else f"{BASE}/{lang}/"
+    # On the home page the lang switcher swaps to other home pages; on a guide it swaps to that guide's translation (handled by caller via opts override is overkill — keep home switch).
     opts = "".join(
         f'<a class="lang-opt {"active" if l==lang else ""}" href="{BASE}/{l}/" hreflang="{l}">'
         f'<span class="fl">{LANG_META[l]["flag"]}</span><span>{LANG_META[l]["name"]}</span>'
         f'<span class="muted">{LANG_META[l]["short"]}</span></a>' for l in LANGS)
-    navlinks = "".join(f'<a href="#{s}">{e(nav[s])}</a>'
+    glabel = GUIDES_LABEL[lang]["nav"]
+    navlinks = "".join(f'<a href="{hp}#{s}">{e(nav[s])}</a>'
                        for s in ["amenities", "gallery", "tours", "reviews", "faq"])
+    navlinks += f'<a href="{BASE}/{lang}/guides/">{e(glabel)}</a>'
     chev = svg("chevron", 14, 2, "ic chev")
     return f'''<header class="site-head" id="site-head">
   <div class="wrap head-inner">
@@ -157,7 +168,7 @@ def header(lang):
 def hero(lang):
     t = C[lang]; h = t["hero"]
     slides = "".join(
-        f'<div class="slide {"on" if i==0 else ""}" data-i="{i}" style="background-image:url(\'{s}\')"></div>'
+        f'<div class="slide {"on" if i==0 else ""}" data-i="{i}" style="background-image:url(\'{img_src(s)}\')"></div>'
         for i, (s, _a) in enumerate(IMAGES["hero"]))
     dots = "".join(f'<button class="dot {"on" if i==0 else ""}" data-i="{i}" aria-label="Slide {i+1}"></button>'
                    for i in range(len(IMAGES["hero"])))
@@ -207,8 +218,8 @@ def amenities(lang):
         for i, it in enumerate(f["items"]))
     return f'''<section class="section" id="amenities"><div class="wrap amen-grid">
     <div class="amen-media" data-reveal>
-      <div class="ph" style="background-image:url('{IMAGES["gallery"][1][0]}')"></div>
-      <div class="ph-2" style="background-image:url('{IMAGES["gallery"][3][0]}')"></div>
+      <div class="ph" style="background-image:url('{img_src("living-room")}')"></div>
+      <div class="ph-2" style="background-image:url('{img_src("bedroom-1", 800)}')"></div>
       <span class="amen-tag">{svg("sparkle",15)} {e(f["kicker"])}</span>
     </div>
     <div class="amen-copy">
@@ -223,9 +234,11 @@ def gallery(lang):
     g = C[lang]["gallery"]
     tiles = "".join(
         f'<figure class="g-item {GAL_CLASSES[i] if i < len(GAL_CLASSES) else ""}" data-i="{i}" data-reveal data-d="{(i%4)+1}">'
-        f'<img src="{src}" alt="{e(cap)} — {SITE["property_name"]} {SITE["locality"]}" loading="lazy">'
+        f'<img src="{img_src(slug, 800)}" srcset="{img_srcset(slug)}" sizes="(max-width:720px) 50vw, 25vw" '
+        f'width="800" height="600" alt="{e(cap)} — {SITE["property_name"]} {SITE["locality"]}, Colón Panamá" '
+        f'loading="lazy" decoding="async">'
         f'<span class="g-expand">{svg("expand",16)}</span><figcaption class="g-cap">{e(cap)}</figcaption></figure>'
-        for i, (src, cap) in enumerate(IMAGES["gallery"]))
+        for i, (slug, cap) in enumerate(IMAGES["gallery"]))
     return f'''<section class="section section-sand" id="gallery"><div class="wrap">
     <div class="gal-head" data-reveal>
       <div class="sec-head" style="margin-bottom:0"><div class="eyebrow">{e(g["kicker"])}</div>
@@ -241,7 +254,7 @@ def film(lang):
     <div class="sec-head center" data-reveal><div class="eyebrow light center">{e(fm["kicker"])}</div>
       <h2 class="display">{e(fm["title"])}</h2><p class="lede">{e(fm["sub"])}</p></div>
     <div class="film-frame" data-reveal data-d="1">
-      <video id="filmVideo" autoplay muted loop playsinline preload="metadata" poster="{IMAGES["film_poster"]}">
+      <video id="filmVideo" autoplay muted loop playsinline preload="metadata" poster="{img_src(IMAGES["film_poster"])}">
         <source src="{BASE}/assets/media/bala-tour.mp4" type="video/mp4">
       </video>
       <div class="film-vignette"></div>
@@ -277,7 +290,7 @@ def tours(lang):
     tr = C[lang]["tours"]
     cards = "".join(
         f'<article class="tour-card" data-reveal data-d="{(i%4)+1}">'
-        f'<div class="timg" style="background-image:url(\'{IMAGES["tours"][it[2]]}\')"></div>'
+        f'<div class="timg" style="background-image:url(\'{img_src(IMAGES["tours"][it[2]], 800)}\')"></div>'
         f'<div class="tour-body"><span class="tour-num">0{i+1}</span><h3>{e(it[0])}</h3><p>{e(it[1])}</p></div></article>'
         for i, it in enumerate(tr["items"]))
     return f'''<section class="section section-sand" id="tours"><div class="wrap">
@@ -339,7 +352,7 @@ def location(lang):
 def cta(lang):
     n = C[lang]["newsletter"]
     return f'''<section class="cta-band" id="cta">
-    <div class="cb-img" style="background-image:url('{IMAGES["gallery"][0][0]}')"></div>
+    <div class="cb-img" style="background-image:url('{img_src("ocean-view")}')"></div>
     <div class="cb-veil"></div>
     <div class="cta-inner wrap"><div class="narrow" data-reveal>
       <div class="eyebrow light center">{e(n["kicker"])}</div>
@@ -415,10 +428,181 @@ def fab(lang):
     return (f'<a class="fab-wa" id="fab-wa" href="{wa(lang)}" target="_blank" rel="noopener" aria-label="WhatsApp">'
             f'{svg("whatsapp",28)}</a>')
 
+# ---------------- guides (content hub) ----------------
+def guide_url(lang, slug):
+    return f"{FULL}/{lang}/guides/{slug}/"
+
+def hreflang_guides_tags(slug=None):
+    """hreflang for a guide (slug set) or the guides index (slug None)."""
+    def u(l):
+        return guide_url(l, slug) if slug else f"{FULL}/{l}/guides/"
+    xd = u(DEFAULT_LANG)
+    tags = [f'<link rel="alternate" hreflang="x-default" href="{xd}" />']
+    for l in LANGS:
+        tags.append(f'<link rel="alternate" hreflang="{LANG_META[l]["hreflang"]}" href="{u(l)}" />')
+    return "\n  ".join(tags)
+
+def sub_head(lang, title, desc, kw, canonical, hreflang_block, jsonld_str, og_img=None):
+    m = LANG_META[lang]
+    og = og_img or IMAGES["og"]
+    return f'''<!DOCTYPE html>
+<html lang="{m["hreflang"]}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{e(title)}</title>
+  <meta name="description" content="{e(desc)}" />
+  <meta name="keywords" content="{e(kw)}" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="{canonical}" />
+  {hreflang_block}
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="{m["locale"]}" />
+  <meta property="og:site_name" content="{SITE["brand"]}" />
+  <meta property="og:title" content="{e(title)}" />
+  <meta property="og:description" content="{e(desc)}" />
+  <meta property="og:url" content="{canonical}" />
+  <meta property="og:image" content="{og}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{e(title)}" />
+  <meta name="twitter:description" content="{e(desc)}" />
+  <meta name="twitter:image" content="{og}" />
+  <meta name="theme-color" content="#06202f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Crect width='56' height='56' rx='9' fill='%2306202f'/%3E%3Cpath d='M39 18 A20 20 0 1 0 39 38' fill='none' stroke='%23fbf8f1' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M14 45h28' stroke='%23c39a4a' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{BASE}/assets/css/styles.css?v={CSS_VER}" />
+  {jsonld_str}
+</head>'''
+
+def guide_cta(lang):
+    g = GUIDES_LABEL[lang]
+    return f'''<section class="cta-band" id="cta">
+    <div class="cb-img" style="background-image:url('{img_src("balcony")}')"></div>
+    <div class="cb-veil"></div>
+    <div class="cta-inner wrap"><div class="narrow" data-reveal>
+      <div class="eyebrow light center">{e(GUIDES_LABEL[lang]["nav"])}</div>
+      <h2>{e(g["cta_title"])}</h2><p class="lede">{e(g["cta_sub"])}</p>
+      <div style="display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1.6rem">
+        <a class="btn btn-primary btn-lg" href="{BASE}/{lang}/">{e(g["cta_btn"])} {svg("arrow",16)}</a>
+        <a class="btn btn-ghost btn-lg" href="{wa(lang)}" target="_blank" rel="noopener">{svg("whatsapp",18)} WhatsApp</a>
+      </div>
+    </div></div>
+  </section>'''
+
+def render_blocks(blocks):
+    out = []
+    for h2, items in blocks:
+        out.append(f'<h2 class="display" style="font-size:clamp(1.6rem,3vw,2.2rem);margin:2.4rem 0 1rem">{e(h2)}</h2>')
+        for it in items:
+            if isinstance(it, tuple) and it[0] == "ul":
+                lis = "".join(f"<li>{li}</li>" for li in it[1])
+                out.append(f'<ul style="margin:0 0 1rem;padding-left:1.1rem;display:flex;flex-direction:column;gap:.5rem">{lis}</ul>')
+            else:
+                out.append(f'<p style="margin:0 0 1rem">{it}</p>')
+    return "\n".join(out)
+
+def guide_page(lang, slug):
+    g = GUIDES[slug]; gd = g[lang]; lab = GUIDES_LABEL[lang]
+    canonical = guide_url(lang, slug)
+    og_img = FULL + f"/assets/img/{g['image']}-1600.webp"
+    jsonld = "\n".join(f'<script type="application/ld+json">{json.dumps(b, ensure_ascii=False)}</script>' for b in [
+        {"@context": "https://schema.org", "@type": "Article", "headline": gd["h1"],
+         "description": gd["desc"], "inLanguage": lang, "image": og_img,
+         "mainEntityOfPage": canonical,
+         "author": {"@type": "Organization", "name": SITE["brand"]},
+         "publisher": {"@type": "Organization", "name": SITE["brand"]}},
+        {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": f"{FULL}/{lang}/"},
+            {"@type": "ListItem", "position": 2, "name": lab["nav"], "item": f"{FULL}/{lang}/guides/"},
+            {"@type": "ListItem", "position": 3, "name": gd["h1"], "item": canonical}]},
+    ])
+    # related = the other guides
+    rel = [s for s in GUIDE_ORDER if s != slug]
+    rel_cards = "".join(
+        f'<a class="tour-card" href="{BASE}/{lang}/guides/{s}/" style="text-decoration:none">'
+        f'<div class="timg" style="background-image:url(\'{img_src(GUIDES[s]["image"], 800)}\')"></div>'
+        f'<div class="tour-body"><h3>{e(GUIDES[s][lang]["h1"])}</h3>'
+        f'<p style="max-height:none;opacity:1;margin-top:.3rem">{e(GUIDES[s][lang]["desc"][:90])}…</p></div></a>'
+        for s in rel)
+    head = sub_head(lang, gd["title"], gd["desc"], gd["kw"], canonical,
+                    hreflang_guides_tags(slug), jsonld, og_img)
+    body = f'''<body id="top" data-lang="{lang}">
+{header(lang, home=False)}
+<main>
+  <article class="section" style="padding-top:7rem">
+    <div class="wrap narrow">
+      <nav class="eyebrow" aria-label="Breadcrumb" style="margin-bottom:1.2rem">
+        <a href="{BASE}/{lang}/" style="color:var(--teal-d)">Home</a> ·
+        <a href="{BASE}/{lang}/guides/" style="color:var(--teal-d)">{e(lab["nav"])}</a>
+      </nav>
+      <h1 class="display">{e(gd["h1"])}</h1>
+      <p class="lede" style="max-width:46ch">{e(gd["lead"])}</p>
+      <div class="guide-hero" style="margin:1.8rem 0;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)">
+        <img src="{img_src(g["image"])}" srcset="{img_srcset(g["image"])}" sizes="(max-width:900px) 100vw, 760px"
+          width="1600" height="1067" alt="{e(gd["h1"])}" decoding="async" style="width:100%;display:block">
+      </div>
+      <div class="guide-body" style="font-size:1.05rem;line-height:1.75;color:var(--ink-90)">
+        {render_blocks(gd["blocks"])}
+      </div>
+      <p style="margin-top:2rem"><a class="btn btn-outline" href="{BASE}/{lang}/guides/">{svg("arrow",15)} {e(lab["back"])}</a></p>
+    </div>
+  </article>
+  <section class="section section-sand">
+    <div class="wrap">
+      <div class="sec-head center"><div class="eyebrow center">{e(lab["related"])}</div></div>
+      <div class="tour-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">{rel_cards}</div>
+    </div>
+  </section>
+  {guide_cta(lang)}
+</main>
+{footer(lang)}
+{book_bar(lang)}
+{fab(lang)}
+<script src="{BASE}/assets/js/main.js?v={JS_VER}" defer></script>
+</body>
+</html>'''
+    return head + "\n" + body
+
+def guides_index(lang):
+    lab = GUIDES_LABEL[lang]
+    canonical = f"{FULL}/{lang}/guides/"
+    jsonld = f'<script type="application/ld+json">{json.dumps({"@context":"https://schema.org","@type":"CollectionPage","name":lab["title"],"inLanguage":lang,"url":canonical}, ensure_ascii=False)}</script>'
+    cards = "".join(
+        f'<a class="tour-card" href="{BASE}/{lang}/guides/{s}/" style="text-decoration:none">'
+        f'<div class="timg" style="background-image:url(\'{img_src(GUIDES[s]["image"], 800)}\')"></div>'
+        f'<div class="tour-body"><h3>{e(GUIDES[s][lang]["h1"])}</h3>'
+        f'<p style="max-height:none;opacity:1;margin-top:.3rem">{e(GUIDES[s][lang]["desc"][:110])}…</p>'
+        f'<span class="tlink" style="margin-top:.6rem;color:#fff">{e(lab["read"])} {svg("arrow",15)}</span></div></a>'
+        for s in GUIDE_ORDER)
+    head = sub_head(lang, lab["title"] + f' | {SITE["brand"]}', lab["sub"],
+                    "panama caribbean travel guide, things to do colon panama, maria chiquita",
+                    canonical, hreflang_guides_tags(None), jsonld)
+    body = f'''<body id="top" data-lang="{lang}">
+{header(lang, home=False)}
+<main>
+  <section class="section" style="padding-top:7rem">
+    <div class="wrap">
+      <div class="sec-head"><div class="eyebrow">{e(lab["nav"])}</div>
+        <h1 class="display">{e(lab["title"])}</h1><p class="lede">{e(lab["sub"])}</p></div>
+      <div class="tour-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">{cards}</div>
+    </div>
+  </section>
+  {guide_cta(lang)}
+</main>
+{footer(lang)}
+{book_bar(lang)}
+{fab(lang)}
+<script src="{BASE}/assets/js/main.js?v={JS_VER}" defer></script>
+</body>
+</html>'''
+    return head + "\n" + body
+
 # ---------------- page ----------------
 def page(lang):
     t = C[lang]; m = LANG_META[lang]; s = SEO[lang]
-    gallery_json = json.dumps([[src, cap] for src, cap in IMAGES["gallery"]], ensure_ascii=False)
+    gallery_json = json.dumps([[img_src(slug), cap] for slug, cap in IMAGES["gallery"]], ensure_ascii=False)
     body = "\n".join([
         header(lang),
         '<main>',
@@ -482,7 +666,7 @@ def root_redirect():
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
     body{{font-family:Manrope,sans-serif;margin:0;min-height:100svh;display:flex;align-items:center;justify-content:center;
-    background:#06202f url('{IMAGES["hero"][3][0]}') center/cover;color:#fff;text-align:center}}
+    background:#06202f url('{img_src("ocean-view")}') center/cover;color:#fff;text-align:center}}
     .ov{{position:fixed;inset:0;background:linear-gradient(180deg,rgba(6,32,47,.6),rgba(6,32,47,.92))}}
     .box{{position:relative;z-index:1;padding:2rem}}
     .mark{{font-size:.62rem;letter-spacing:.34em;color:#dcb978;font-weight:700}}
@@ -550,6 +734,30 @@ def sitemap():
     <priority>0.9</priority>
 {alts()}
   </url>''')
+    # guides index (per language)
+    def galts(slug=None):
+        a = [f'    <xhtml:link rel="alternate" hreflang="x-default" href="{FULL}/{DEFAULT_LANG}/guides/{(slug+"/") if slug else ""}"/>']
+        for l in LANGS:
+            loc = f"{FULL}/{l}/guides/{(slug+'/') if slug else ''}"
+            a.append(f'    <xhtml:link rel="alternate" hreflang="{l}" href="{loc}"/>')
+        return "\n".join(a)
+    for l in LANGS:
+        urls.append(f'''  <url>
+    <loc>{FULL}/{l}/guides/</loc>
+    <lastmod>{TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+{galts()}
+  </url>''')
+    for slug in GUIDE_ORDER:
+        for l in LANGS:
+            urls.append(f'''  <url>
+    <loc>{FULL}/{l}/guides/{slug}/</loc>
+    <lastmod>{TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+{galts(slug)}
+  </url>''')
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
             'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' + "\n".join(urls) + "\n</urlset>\n")
@@ -567,6 +775,9 @@ def write(path, content):
 if __name__ == "__main__":
     for l in LANGS:
         write(f"{l}/index.html", page(l))
+        write(f"{l}/guides/index.html", guides_index(l))
+        for slug in GUIDE_ORDER:
+            write(f"{l}/guides/{slug}/index.html", guide_page(l, slug))
     write("index.html", root_redirect())
     write("sitemap.xml", sitemap())
     write("robots.txt", robots())
