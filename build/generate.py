@@ -10,8 +10,13 @@ from content import (SITE, LANGS, LANG_META, DEFAULT_LANG, GEO_MAP, IMAGES,
                      REVIEWS, C, SEO, FOOTER_KEYWORDS)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FULL = SITE["domain"] + SITE["base"]
-BASE = SITE["base"]
+CUSTOM = SITE.get("custom_domain", "").strip()
+if CUSTOM:
+    FULL = "https://" + CUSTOM        # apex domain, served at root
+    BASE = ""                          # root-relative asset/link paths
+else:
+    FULL = SITE["domain"] + SITE["base"]
+    BASE = SITE["base"]
 TODAY = datetime.date.today().isoformat()
 
 # ---- icon set (ported from design app.js) ----
@@ -554,4 +559,7 @@ if __name__ == "__main__":
     write("sitemap.xml", sitemap())
     write("robots.txt", robots())
     write(".nojekyll", "")
+    if CUSTOM:
+        write("CNAME", CUSTOM + "\n")
+        print("custom domain:", CUSTOM)
     print("done")

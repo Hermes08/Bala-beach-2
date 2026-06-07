@@ -4,7 +4,11 @@ Mirrors the design handoff (assets/js/content.js) + SEO fields per language.
 Edit copy here, then run: python3 build/generate.py
 """
 
+# When you register a custom domain, set custom_domain (e.g. "colonbeachrentals.net").
+# generate.py will then emit root-relative paths + a CNAME file and use the apex
+# domain for canonical/hreflang/sitemap. Leave "" to keep the GitHub Pages subpath.
 SITE = {
+    "custom_domain": "",
     "domain": "https://hermes08.github.io",
     "base": "/Bala-beach-2",
     "brand": "Bala Beach",
