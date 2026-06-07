@@ -137,6 +137,15 @@ main{counter-reset:bbsec}
 /* emblem logo — sunrise over water */
 .brand{display:flex;align-items:center;gap:.85rem;color:#fff}
 .solid .brand{color:var(--ink)}
+/* ---- lifestyle wordmark (Concept J) — current logo ---- */
+.brand-ls{text-decoration:none}
+.brand-ls .ls-box{border:1.5px solid currentColor;padding:.34rem .8rem .42rem;display:flex;
+  flex-direction:column;align-items:center;gap:3px;line-height:1;transition:border-color .4s var(--ease)}
+.brand-ls .ls-word{font-family:var(--sans);font-weight:800;font-size:1.34rem;letter-spacing:-.012em;line-height:.84}
+.solid .head-inner .brand-ls .ls-word{font-size:1.22rem}
+.brand-ls .ls-sub{display:flex;align-items:center;gap:.44rem;font-family:var(--sans);font-weight:700;
+  font-size:.47rem;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+.brand-ls .ls-sub .r{width:11px;height:1.5px;background:var(--gold);display:inline-block;flex:0 0 auto}
 .brand-mono{width:46px;height:46px;flex:0 0 auto;transition:.4s var(--ease)}
 .solid .head-inner .brand-mono{width:42px;height:42px}
 .brand-mono .ring{opacity:.5}

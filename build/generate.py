@@ -73,9 +73,10 @@ MONO = ('<svg class="brand-mono" viewBox="0 0 56 56" fill="none" aria-hidden="tr
         '<path class="wave" d="M17.6 39.8c2.1 0 2.3 1.3 4.6 1.3s2.4-1.3 4.7-1.3 2.4 1.3 4.7 1.3 2.4-1.3 4.6-1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>'
         '</svg>')
 
-BRAND = (f'<a href="#top" class="brand">{MONO}<span class="brand-txt">'
-         f'<span class="brand-name">BALA BEACH</span>'
-         f'<span class="brand-sub">María Chiquita · Panamá</span></span></a>')
+# Lifestyle wordmark (Concept J) — COLÓN in a thin frame, adaptive via currentColor
+BRAND_LS = ('<span class="ls-box"><span class="ls-word">COLÓN</span>'
+            '<span class="ls-sub"><i class="r"></i>Beach Rentals<i class="r"></i></span></span>')
+BRAND = f'<a href="#top" class="brand brand-ls">{BRAND_LS}</a>'
 
 # ---------------- structured data ----------------
 def jsonld(lang):
@@ -356,7 +357,7 @@ def footer(lang):
     </div>
     <div class="foot-grid">
       <div class="foot-about">
-        <a href="#top" class="brand" style="color:#fff">{MONO}<span class="brand-txt"><span class="brand-name">BALA BEACH</span><span class="brand-sub">María Chiquita · Panamá</span></span></a>
+        <a href="#top" class="brand brand-ls" style="color:#fff">{BRAND_LS}</a>
         <p>{e(f["about"])}</p>
         <a class="foot-phone" href="{wa(lang)}" target="_blank" rel="noopener">{svg("whatsapp",18)} {SITE["phone_display"]}</a>
       </div>
@@ -439,7 +440,7 @@ def page(lang):
   <meta name="twitter:description" content="{e(s["desc"])}" />
   <meta name="twitter:image" content="{IMAGES["og"]}" />
   <meta name="theme-color" content="#06202f" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Ccircle cx='28' cy='28' r='27' fill='%2306202f'/%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M17 31a11 11 0 0 1 22 0' stroke='%23c8a24e' stroke-width='1.6'/%3E%3Cpath d='M28 11v3.4M40 16l-2.3 2.4M16 16l2.3 2.4' stroke='%23c8a24e' stroke-width='1.5'/%3E%3Cpath d='M15 35.4h26' stroke='%23dcb978' stroke-width='1.5'/%3E%3Cpath d='M17.6 39.8c2.1 0 2.3 1.3 4.6 1.3s2.4-1.3 4.7-1.3 2.4 1.3 4.7 1.3 2.4-1.3 4.6-1.3' stroke='%23ffffff' stroke-width='1.3' opacity='.5'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Crect width='56' height='56' rx='9' fill='%2306202f'/%3E%3Cpath d='M39 18 A20 20 0 1 0 39 38' fill='none' stroke='%23fbf8f1' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M14 45h28' stroke='%23c39a4a' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
