@@ -559,7 +559,9 @@ if __name__ == "__main__":
     write("sitemap.xml", sitemap())
     write("robots.txt", robots())
     write(".nojekyll", "")
-    if CUSTOM:
+    if CUSTOM and SITE.get("host", "github") == "github":
         write("CNAME", CUSTOM + "\n")
-        print("custom domain:", CUSTOM)
+        print("custom domain (GitHub Pages CNAME):", CUSTOM)
+    elif CUSTOM:
+        print("custom domain:", CUSTOM, "(host:", SITE.get("host"), "- no CNAME)")
     print("done")

@@ -8,7 +8,8 @@ Edit copy here, then run: python3 build/generate.py
 # generate.py will then emit root-relative paths + a CNAME file and use the apex
 # domain for canonical/hreflang/sitemap. Leave "" to keep the GitHub Pages subpath.
 SITE = {
-    "custom_domain": "",
+    "custom_domain": "colonbeachrentals.xyz",
+    "host": "netlify",  # "netlify" (no CNAME) or "github" (writes CNAME)
     "domain": "https://hermes08.github.io",
     "base": "/Bala-beach-2",
     "brand": "Bala Beach",
